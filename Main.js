@@ -13,8 +13,10 @@ const ctx = canvas.getContext("2d");
 const rect = canvas.getBoundingClientRect();
 
 const center = { x: 400, y: 300 };
-const canvasXoffset = rect.left;
-const canvasYoffset = rect.top;
+let scaleX = 1;
+let scaleY = 1;
+let rectL = 0;
+let rectT = 0;
 
 const chamber = {
   chamberContent: ["empty", "live", "empty", "empty", "empty", "empty"], // initial content
@@ -98,6 +100,14 @@ const decelerationRate = 0.98;
 
 // --- Utility Functions ---
 
+function updateScaling() {
+    const rect = canvas.getBoundingClientRect();
+    rectL = rect.left;
+    rectT = rect.top;
+    scaleX = canvas.width / rect.width;
+    scaleY = canvas.height / rect.height;
+}
+
 function isOverObject(x, y, object, doSquares) {
   if (doSquares) {
     // UPDATED: Use object.x as the left boundary
@@ -116,8 +126,10 @@ function isOverObject(x, y, object, doSquares) {
 }
 
 function calculateAngle(e) {
-  const mouseX = e.clientX - canvasXoffset;
-  const mouseY = e.clientY - canvasYoffset;
+  const offsetX = e.clientX - rectL;
+  const offsetY = e.clientY - rectT;
+  const mouseX = offsetX * scaleX;
+  const mouseY = offsetY * scaleY;
   const angle = Math.atan2(mouseY - chamber.y, mouseX - chamber.x);
   return angle;
 }
@@ -146,8 +158,10 @@ function computeCurrentSlot(angle) {
 // --- Event Handlers (Mouse) ---
 
 document.addEventListener("mouseup", (e) => {
-  const mouseX = e.clientX - canvasXoffset;
-  const mouseY = e.clientY - canvasYoffset;
+  const offsetX = e.clientX - rectL;
+  const offsetY = e.clientY - rectT;
+  const mouseX = offsetX * scaleX;
+  const mouseY = offsetY * scaleY;
   if (isDragging) {
     isDragging = false;
     canvas.style.cursor = "grab";
@@ -187,8 +201,10 @@ document.addEventListener("mouseup", (e) => {
   }
 });
 canvas.addEventListener("mousemove", (e) => {
-  const mouseX = e.clientX - canvasXoffset;
-  const mouseY = e.clientY - canvasYoffset;
+  const offsetX = e.clientX - rectL;
+  const offsetY = e.clientY - rectT;
+  const mouseX = offsetX * scaleX;
+  const mouseY = offsetY * scaleY;
   //live shits
   const currSlots = chamber.currentPosition;
   const loadedOnes = chamber.chamberContent.filter((s) => s === "live").length;
@@ -273,8 +289,10 @@ canvas.addEventListener("mousemove", (e) => {
 });
 
 canvas.addEventListener("mousedown", (e) => {
-  const mouseX = e.clientX - canvasXoffset;
-  const mouseY = e.clientY - canvasYoffset;
+  const offsetX = e.clientX - rectL;
+  const offsetY = e.clientY - rectT;
+  const mouseX = offsetX * scaleX;
+  const mouseY = offsetY * scaleY;
 
   // live shits
   const currSlots = chamber.currentPosition;
@@ -856,6 +874,10 @@ buttons.forEach((button) => {
     }
   });
 });
+
+//misc shittattatatataattatat lakopolosto
+window.addEventListener('load', updateScaling);
+window.addEventListener('resize',updateScaling);
 
 // --- Start Game Loop ---
 
